@@ -21,6 +21,7 @@ function ListMain() {
           }
      }, []);
 
+     // 목록 조회
      const getPost = async () => {
           const result: any = await Get(`/api/v1/posts`, {});
 
@@ -31,6 +32,7 @@ function ListMain() {
           }
      }
 
+     // 등록 페이지 이동
      const postAdd = () => {
           router.push(`/post/add`)
      }
@@ -65,7 +67,6 @@ function ListMain() {
                                                                       id: item.id,
                                                                  },
                                                             }}
-                                                       // as='/detail'
                                                        >
                                                             {item.title}
                                                        </Link>

@@ -1,12 +1,15 @@
 'use client'
 
-import { Delete, Get } from '@/app/util/CommonCall';
+import { Delete, Get, Post } from '@/app/util/CommonCall';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 function PostDetail(props: any) {
      const router = useRouter();
      const [detailList, setDetailList] = useState<any>([]);
+     const [commentsList, setCommentsList] = useState<any>([]);
+     const [comment, setComment] = useState<string>('');
+     const [likeCount, setLikeCount] = useState<any>('');
 
      useEffect(() => {
           let mounted: any = true;
@@ -19,19 +22,24 @@ function PostDetail(props: any) {
           }
      }, []);
 
+     // 상세 조회
      const getDetail = async () => {
           const result: any = await Get(`/api/v1/posts/detail/${props.searchParams.id}`, {});
 
           if (result.status === 200) {
                setDetailList(result.data.result);
+               getComment();
+               getLikeCount();
           }
      }
 
+     // 뒤로가기
      const back = () => {
           router.push('/post/list');
      }
 
-     const del = async () => {
+     // 삭제
+     const getDelete = async () => {
           const result: any = await Delete(`/api/v1/posts/${props.searchParams.id}`, {});
 
           if (result.status === 200) {
@@ -42,8 +50,53 @@ function PostDetail(props: any) {
           }
      }
 
-     const update = () => {
+     // 수정 페이지 이동
+     const getUpdate = () => {
           router.push(`/post/update?id=${props.searchParams.id}`);
+     }
+
+     // 댓글 조회
+     const getComment = async () => {
+          const result: any = await Get(`/api/v1/posts/${props.searchParams.id}/comments`, {});
+          console.log('id :::', props.searchParams.id);
+
+          if (result.status === 200) {
+               setCommentsList(result.data.result.content);
+          }
+     }
+
+     // 댓글 등록
+     const getCommentAdd = async () => {
+          let param: any = new FormData();
+          param.append('comment', comment);
+
+          const result: any = await Post(`/api/v1/posts/${props.searchParams.id}/comments`, param);
+
+          if (result.status === 200) {
+               alert('댓글 등록 성공')
+               location.reload();
+          }
+     }
+
+     // 좋아요 조회
+     const getLikeCount = async () => {
+          const result: any = await Get(`/api/v1/posts/${props.searchParams.id}/likes`, {});
+
+          if (result.status === 200) {
+               setLikeCount(result.data.result);
+
+          }
+     }
+
+     // 좋아요 추가
+     const getLike = async () => {
+          const result: any = await Post(`/api/v1/posts/${props.searchParams.id}/likes`, {});
+
+          if (result.status === 200) {
+               alert('좋아요를 눌렀습니다.')
+               location.reload();
+          }
+
      }
 
      return (
@@ -72,13 +125,37 @@ function PostDetail(props: any) {
                                         <th>작성일시</th>
                                         <td>{detailList.createdAt}</td>
                                    </tr>
+                                   <tr>
+                                        <th>좋아요</th>
+                                        <td>{likeCount}  <button type='button' onClick={() => { getLike(); }}>👍</button></td>
+                                   </tr>
                               </tbody>
                          </table>
                     </div>
-                    <div>
+                    <div className='button'>
                          <button type='button' className='' onClick={() => { back(); }} >목록</button>
-                         <button type='button' className='' onClick={() => { update(); }} >수정</button>
-                         <button type='button' className='' onClick={() => { del(); }} >삭제</button>
+                         <button type='button' className='' onClick={() => { getUpdate(); }} >수정</button>
+                         <button type='button' className='' onClick={() => { getDelete(); }} >삭제</button>
+                    </div>
+                    <div className='comments'>
+                         <div>
+                              <table>
+                                   <tbody>
+                                        {
+                                             commentsList && commentsList.map((item: any, index: any) => (
+                                                  <tr key={index}>
+                                                       <th> {item.userName}</th>
+                                                       <td>{item.comment}</td>
+                                                  </tr>
+                                             ))
+                                        }
+                                   </tbody>
+                              </table>
+                         </div>
+                         <div>
+                              <input type='text' onChange={(e: any) => { setComment(e.target.value) }} />
+                              <button type='button' onClick={() => { getCommentAdd(); }}>등록</button>
+                         </div>
                     </div>
                </div>
           </>
