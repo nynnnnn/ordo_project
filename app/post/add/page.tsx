@@ -4,10 +4,8 @@ import { Post } from '@/app/util/CommonCall';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react'
 
-
 function AddMain() {
      const router = useRouter();
-
      const [title, setTitle] = useState<string>('');
      const [content, setContent] = useState<string>('');
 

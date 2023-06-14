@@ -4,11 +4,8 @@ import { Get, Post, Put } from '@/app/util/CommonCall';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
-
-
 function PostUpdate(props: any) {
      const router = useRouter();
-     
      const [no, setNo] = useState<string>(props.searchParams.id);
      const [title, setTitle] = useState<string>('');
      const [content, setContent] = useState<string>('');
@@ -42,7 +39,6 @@ function PostUpdate(props: any) {
                title: title,
                body: content
           }
-
           const result: any = await Put(`/api/v1/posts/${no}`, dto);
 
           if(result.status === 200) {
