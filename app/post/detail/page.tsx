@@ -1,21 +1,27 @@
 'use client'
 
-import { Delete, Get, Post } from '@/app/util/CommonCall';
+import { Delete, Get, Post, Put } from '@/app/util/CommonCall';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 function PostDetail(props: any) {
      const router = useRouter();
      const [detailList, setDetailList] = useState<any>([]);
+
      const [commentsList, setCommentsList] = useState<any>([]);
      const [comment, setComment] = useState<string>('');
-     const [likeCount, setLikeCount] = useState<any>('');
+     const [commentType, setCommentType] = useState<boolean>(true);
 
+     const [likeCount, setLikeCount] = useState<any>('');
+     const [id, setId] = useState<any>();
+     const [postId, setPostId] = useState<any>();
+     
      useEffect(() => {
           let mounted: any = true;
 
           if (mounted) {
                getDetail();
+               setCommentType(true);
           }
           return function cleanup() {
                mounted = false;
@@ -62,6 +68,8 @@ function PostDetail(props: any) {
 
           if (result.status === 200) {
                setCommentsList(result.data.result.content);
+               setId(result.data.result.content.id);
+               setPostId(result.data.result.content.postId);
           }
      }
 
@@ -73,7 +81,30 @@ function PostDetail(props: any) {
           const result: any = await Post(`/api/v1/posts/${props.searchParams.id}/comments`, param);
 
           if (result.status === 200) {
-               alert('댓글 등록 성공')
+               alert('댓글이 등록되었습니다.')
+               location.reload();
+          }
+     }
+
+     // 댓글 수정
+     const getCommentUpdate = async (id: any, postId: any) => {
+          let param: any = new FormData();
+          param.append('comment', comment);
+
+          const result: any = await Put(`/api/v1/posts/${postId}/comments/${id}`, param);
+
+          if (result.status === 200) {
+               alert('댓글이 수정되었습니다.')
+               location.reload();
+          }
+     }
+
+     // 댓글 삭제
+     const getCommentDelete = async (id: any, postId: any) => {
+          const result: any = await Delete(`/api/v1/posts/${postId}/comments/${id}`, {});
+
+          if (result.status === 200) {
+               alert('댓글이 삭제되었습니다.')
                location.reload();
           }
      }
@@ -84,7 +115,6 @@ function PostDetail(props: any) {
 
           if (result.status === 200) {
                setLikeCount(result.data.result);
-
           }
      }
 
@@ -144,8 +174,21 @@ function PostDetail(props: any) {
                                         {
                                              commentsList && commentsList.map((item: any, index: any) => (
                                                   <tr key={index}>
-                                                       <th> {item.userName}</th>
-                                                       <td>{item.comment}</td>
+                                                       <th>{item.userName}</th>
+                                                       {
+                                                            commentType === true
+                                                                 ?
+                                                                 <>
+                                                                      <td>{item.comment}</td>
+                                                                      <td><button type='button' onClick={() => { setCommentType(false); }}>수정</button></td>
+                                                                      <td><button type='button' onClick={() => { getCommentDelete(item.id, item.postId); }}>삭제</button></td>
+                                                                 </>
+                                                                 :
+                                                                 <>
+                                                                      <input type='text' value={item.comment} onChange={(e: any) => { setComment(e.target.value); }} />
+                                                                      <button type='button' onClick={() => { getCommentUpdate(item.id, item.postId); }}>확인</button>
+                                                                 </>
+                                                       }
                                                   </tr>
                                              ))
                                         }
