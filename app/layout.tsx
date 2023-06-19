@@ -6,6 +6,7 @@ import RegisterModal from './components/modals/RegisterModal';
 import getCurrentUser from './actions/getCurrentUser';
 import ClientOnly from './components/ClientOnly';
 import Navbar from './components/navbar/Navbar';
+import { Providers } from './redux/provider';
 
 const font = Nunito({ subsets: ['latin'], });
 
@@ -25,15 +26,17 @@ export default async function RootLayout({
   return (
     <html lang="ko">
       <body className={font.className}>
-        <ClientOnly>
-          <ToasterProvider />
-          <LoginModal />{/* 로그인 팝업 */}
-          <RegisterModal />{/* 회원가입 팝업 */}
-          <Navbar currentUser={currentUser} />{/* 상단 메뉴 */}
-        </ClientOnly>
-        <div className="pb-20 pt-28">
-          {children}
-        </div>
+      <Providers>
+          <ClientOnly>
+            <ToasterProvider />
+            <LoginModal />{/* 로그인 팝업 */}
+            <RegisterModal />{/* 회원가입 팝업 */}
+            <Navbar currentUser={currentUser} />{/* 상단 메뉴 */}
+          </ClientOnly>
+          <div className="pb-20 pt-28">
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   )

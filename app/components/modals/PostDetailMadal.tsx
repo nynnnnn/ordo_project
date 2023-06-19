@@ -20,12 +20,12 @@ const PostDetailModal = (props: any) => {
     let mounted: any = true;
 
     if (mounted) {
-      getPostDetail();
+      props.ID !== undefined && getPostDetail();
     }
     return function cleanup() {
       mounted = false;
     }
-  }, []);
+  }, [props.ID]);
 
   // 상새 글 조회
   const getPostDetail = async () => {
