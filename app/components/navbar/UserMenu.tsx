@@ -1,31 +1,28 @@
 'use client';
 
-import { useCallback, useState } from "react";
-import { AiOutlineMenu } from "react-icons/ai";
-import { useRouter } from "next/navigation";
-
+import Avatar from "../Avatar";
+import Cookies from "js-cookie";
+import MenuItem from "./MenuItem";
+import useRentModal from "@/app/hooks/useRentModal";
 import useLoginModal from "@/app/hooks/useLoginModal";
 import useRegisterModal from "@/app/hooks/useRegisterModal";
-import useRentModal from "@/app/hooks/useRentModal";
-import { cUser } from "@/app/types";
 
-import MenuItem from "./MenuItem";
-import Avatar from "../Avatar";
-import { cookies } from "next/headers";
-import Cookies from "js-cookie";
+import { cUser } from "@/app/types";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { Post } from "@/app/util/CommonCall";
+import { useCallback, useState } from "react";
+import { AiOutlineMenu } from "react-icons/ai";
 
 interface UserMenuProps {
   currentUser?: cUser | null
 }
 
-const UserMenu: React.FC<UserMenuProps> = ({currentUser}) => {
+const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
   const router = useRouter();
-
+  const rentModal = useRentModal();
   const loginModal = useLoginModal();
   const registerModal = useRegisterModal();
-  const rentModal = useRentModal();
-
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleOpen = useCallback(() => {
@@ -34,19 +31,26 @@ const UserMenu: React.FC<UserMenuProps> = ({currentUser}) => {
 
   const onRent = useCallback(() => {
     if (!currentUser) {
-      //로그인 창으로
+      // 로그인 창으로
       return loginModal.onOpen();
     }
-
-    //rentModal.onOpen();
-
-    console.log("로그인 안됨");
   }, [loginModal, rentModal, currentUser]);
 
-  return ( 
+  const getLogout = async () => {
+    const result = await Post(`/api/v2/users/logout`, {});
+
+    if (result.status === 200) {
+      Cookies.remove('access_token');
+      localStorage.removeItem('access_token');
+      toast.success('로그아웃 성공');
+      router.refresh();
+    }
+  }
+
+  return (
     <div className="relative">
       <div className="flex flex-row items-center gap-3">
-        <div 
+        <div
           onClick={onRent}
           className="
             hidden
@@ -61,11 +65,11 @@ const UserMenu: React.FC<UserMenuProps> = ({currentUser}) => {
             cursor-pointer
           "
         >
-          {`${currentUser?.username || "로그인 안됨" }`}{/* 홈으로 */}
+          {`${currentUser?.username || "로그인 안됨"}`} {/* 홈으로 */}
         </div>
-        <div 
-        onClick={toggleOpen}
-        className="
+        <div
+          onClick={toggleOpen}
+          className="
           p-4
           md:py-1
           md:px-2
@@ -88,7 +92,7 @@ const UserMenu: React.FC<UserMenuProps> = ({currentUser}) => {
         </div>
       </div>
       {isOpen && (
-        <div 
+        <div
           className="
             absolute 
             rounded-xl 
@@ -104,48 +108,18 @@ const UserMenu: React.FC<UserMenuProps> = ({currentUser}) => {
         >
           <div className="flex flex-col cursor-pointer">
             {currentUser ? (
-              <>
-                <MenuItem 
-                  label="My trips" 
-                  onClick={() => router.push('/trips')}
-                />
-                <MenuItem 
-                  label="My favorites" 
-                  onClick={() => router.push('/favorites')}
-                />
-                <MenuItem 
-                  label="My reservations" 
-                  onClick={() => router.push('/reservations')}
-                />
-                <MenuItem 
-                  label="My properties" 
-                  onClick={() => router.push('/properties')}
-                />
-                <MenuItem 
-                  label="Airbnb your home" 
-                  onClick={rentModal.onOpen}
-                />
-                <hr />
-                <MenuItem 
-                  label="Logout" 
-                  // onClick={() => signOut()}
-                  onClick={() => {
-                    console.log("로그아웃");
-                    Cookies.remove('access_token');
-                    localStorage.removeItem("access_token");
-                    toast.success('로그아웃 성공'); //성공팝업
-                    router.refresh();
-                  }}
-                />
-              </>
+              <MenuItem
+                label="Logout"
+                onClick={() => { getLogout(); }}
+              />
             ) : (
               <>
-                <MenuItem 
-                  label="Login" 
+                <MenuItem
+                  label="Login"
                   onClick={loginModal.onOpen}
                 />
-                <MenuItem 
-                  label="Sign up" 
+                <MenuItem
+                  label="Sign up"
                   onClick={registerModal.onOpen}
                 />
               </>
@@ -154,7 +128,7 @@ const UserMenu: React.FC<UserMenuProps> = ({currentUser}) => {
         </div>
       )}
     </div>
-   );
+  );
 }
- 
+
 export default UserMenu;

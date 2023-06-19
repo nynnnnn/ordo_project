@@ -1,4 +1,5 @@
 import Axios, { AxiosRequestConfig } from "axios";
+import Cookies from "js-cookie";
 
 const conf: AxiosRequestConfig = {
      baseURL: process.env.NEXT_PUBLIC_API_HOST, //"http://222.108.21.14:8090",
@@ -29,14 +30,17 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
      response => response,
      error => {
-          // const { status } = error.response.data;
           console.log("error : " + error);
+          const { status } = error.response;
+          console.log("status : " + status);
 
-          // if (status === 401) {
+          if (status === 403) {
+               console.log("11111111111");
                // error.headers.setAuthorization(null);
-               // localStorage.removeItem('access_token');
-               // window.location.href = '/';
-          // }
+               localStorage.removeItem('access_token');
+               Cookies.remove("access_token");
+               window.location.href = '/';
+          }
           return Promise.reject(error);
      }
 );

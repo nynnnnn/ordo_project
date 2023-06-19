@@ -1,18 +1,12 @@
-import getCurrentUser from './actions/getCurrentUser';
-import ClientOnly from './components/ClientOnly';
-import Navbar from './components/navbar/Navbar';
-
 import './globals.css'
-// import { Inter } from 'next/font/google'
 import { Nunito } from 'next/font/google'
 import ToasterProvider from './providers/ToasterProvider';
 import LoginModal from './components/modals/LoginModal';
 import RegisterModal from './components/modals/RegisterModal';
-// import { useAppDispatch, useAppSelector } from './Store/hooks';
-// import { setAccess_Token } from './util/cookies/cookieStore';
-// import 'bootstrap/dist/css/bootstrap.min.css'
+import getCurrentUser from './actions/getCurrentUser';
+import ClientOnly from './components/ClientOnly';
+import Navbar from './components/navbar/Navbar';
 
-// const inter = Inter({ subsets: ['latin'] });
 const font = Nunito({ subsets: ['latin'], });
 
 export const metadata = {
@@ -21,19 +15,15 @@ export const metadata = {
 }
 
 export default async function RootLayout({
-  children,
+  children
 }: {
-  children: React.ReactNode
+  children: React.ReactNode,
 }) {
-  
+
   const currentUser = await getCurrentUser();
-
-console.log(currentUser);
-
 
   return (
     <html lang="ko">
-
       <body className={font.className}>
         <ClientOnly>
           <ToasterProvider />
@@ -45,7 +35,6 @@ console.log(currentUser);
           {children}
         </div>
       </body>
-
     </html>
   )
 }

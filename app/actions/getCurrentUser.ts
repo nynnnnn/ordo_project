@@ -2,7 +2,6 @@ import jwtDecode from "jwt-decode";
 import { getServerSession } from "next-auth/next"
 import { cookies } from "next/headers";
 import { cUser } from "../types";
-
 // import { authOptions } from "@/pages/api/auth/[...nextauth]";
 // import prisma from "@/app/libs/prismadb";
 
@@ -14,20 +13,14 @@ export async function getSession() {
 export default async function getCurrentUser() {
   try {
     const session:any = await getSession();
-
     const jwtdecode:cUser = jwtDecode(session);
-
-    // console.log(jwtdecode.username);
 
     if (!jwtdecode.username) {
       return null;
     }
-
     if (!jwtdecode) {
       return null;
     }
-
-
 
     // if (!session?.user?.email) {
     //   return null;
