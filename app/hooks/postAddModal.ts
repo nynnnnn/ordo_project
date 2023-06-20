@@ -1,15 +1,15 @@
 import { create } from 'zustand';
 
-interface postCreateModalStore {
+interface postAddModalStore {
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
 }
 
-const postCreateModal = create<postCreateModalStore>((set) => ({
+const postAddeModal = create<postAddModalStore>((set) => ({
   isOpen: false,
   onOpen: () => set({ isOpen: true }),
   onClose: () => set({ isOpen: false })
 }));
 
-export default postCreateModal;
+export default postAddeModal;

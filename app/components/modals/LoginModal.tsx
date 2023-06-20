@@ -60,7 +60,7 @@ const LoginModal = () => {
 
         toast.success('로그인 성공');   // 성공팝업
         router.refresh();             // 페이지 새로고침
-        loginModal.onClose();         // 창 닫기
+        loginModal.onClose();         // 창닫기
       })
       .catch((error) => {
         console.log("error ::::: ");
@@ -143,7 +143,7 @@ const LoginModal = () => {
       onClose={loginModal.onClose}        // modal close
       onSubmit={handleSubmit(onSubmit)}   // api
       body={bodyContent}                  // content
-      footer={footerContent}              // content
+      footer={footerContent}              // footer
     />
   );
 }
