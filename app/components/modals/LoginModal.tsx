@@ -42,7 +42,7 @@ const LoginModal = () => {
 
     await axios({
       method: 'POST',
-      url: 'http://api.ordo.net:8090/api/v1/users/login',
+      url: 'http://api.ordo.net:8090/api/v2/users/login',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -59,8 +59,8 @@ const LoginModal = () => {
         localStorage.setItem('access_token', token);
 
         toast.success('로그인 성공');   // 성공팝업
-        router.refresh();             // 페이지 새로고침
-        loginModal.onClose();         // 창닫기
+        router.refresh();               // 페이지 새로고침
+        loginModal.onClose();           // 창닫기
       })
       .catch((error) => {
         console.log("error ::::: ");

@@ -14,6 +14,7 @@ export default async function getCurrentUser() {
   try {
     const session:any = await getSession();
     const jwtdecode:cUser = jwtDecode(session);
+    console.log(jwtdecode);
 
     if (!jwtdecode.username) {
       return null;
