@@ -1,50 +1,48 @@
 'use client'
 
 import { Post } from '@/app/util/CommonCall';
+import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react'
 
-function AddMain() {
-     const router = useRouter();
-     const [title, setTitle] = useState<string>('');
-     const [content, setContent] = useState<string>('');
 
-     const getAdd = async() => {
-          let param: any = new FormData();
-          param.append('title', title);
-          param.append('body', content);
+const PostAdd = () => {
+   const router: any = useRouter();
 
-          const result: any = await Post(`/api/v1/posts`, param);
+   const [tite, setTitle] = useState<string>('');
+   const [body, setBody] = useState<string>('');
 
-          if(result.status === 200) {
-               alert('등록 성공');
-               router.push('/post/list')
-          }else {
-               console.log('error!!!');
-          }
-     }
+   const getPostAdd = async () => {
+      let param: any = new FormData();
+      param.append('title', tite);
+      param.append('body', body);
 
-     const back = () => {
-          router.push('/post/list')
-     }
+      const result: any = await Post(`/api/v2/posts/create`, param);
 
-     return (
-          <>
-               <div>
-                    <div>
-                         <label className=''>제목 :</label>
-                         <input type='text' className='' onChange={(e: any) => { setTitle(e.target.value); }} />
-                    </div>
-                    <div>
-                         <label className=''>내용: </label>
-                         <textarea className='' onChange={(e: any) => { setContent(e.target.value); }}></textarea>
-                    </div>
-                    <div>
-                         <button type='button' className='' onClick={() => { back(); }}>뒤로가기</button>
-                         <button type='button' className='' onClick={() => { getAdd(); }}>등록</button>
-                    </div>
-               </div>
-          </>
-     )
+      if (result.status === 200) {
+         toast.success('글이 등록되었습니다.');
+         router.push('/');
+      }
+   }
+
+   return (
+      <>
+         <div>
+            <div>
+               <label>제목:</label><input type='text' onChange={(e: any) => { setTitle(e.target.value); }} />
+            </div>
+            <div>
+               <label>내용:</label><input type='text' onChange={(e: any) => { setBody(e.target.value); }} />
+            </div>
+            <div>
+               <button type='button' onClick={() => { router.push('/'); }}>뒤로가기</button>
+            </div>
+            <div>
+               <button type='button' onClick={() => { getPostAdd(); }}>추가</button>
+            </div>
+         </div>
+      </>
+   )
+
 }
-export default AddMain;
+export default PostAdd;
