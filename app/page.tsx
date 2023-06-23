@@ -8,10 +8,10 @@ export default async function Home() {
   console.log('3000 start :::')
 
   return (
-    <ClientOnly>
-      <Container>
+    // <ClientOnly>
+    //   <Container>
         <List currentUser={currentUser} />
-      </Container>
-    </ClientOnly>
+    //   </Container>
+    // </ClientOnly>
   )
 }

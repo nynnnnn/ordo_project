@@ -7,6 +7,7 @@ import getCurrentUser from './actions/getCurrentUser';
 import ClientOnly from './components/ClientOnly';
 import Navbar from './components/navbar/Navbar';
 import { Providers } from './redux/provider';
+import Container from "@/app/components/Container";
 
 const font = Nunito({ subsets: ['latin'], });
 
@@ -32,10 +33,14 @@ export default async function RootLayout({
             <LoginModal />{/* 로그인 팝업 */}
             <RegisterModal />{/* 회원가입 팝업 */}
             <Navbar currentUser={currentUser} />{/* 상단 메뉴 */}
+
+            <Container>
+              <div className="pb-20 pt-28">
+                {children}
+              </div>
+            </Container>
+            
           </ClientOnly>
-          <div className="pb-20 pt-28">
-            {children}
-          </div>
         </Providers>
       </body>
     </html>
