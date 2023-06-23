@@ -1,207 +1,257 @@
 'use client'
 
-import { Delete, Get, Post, Put } from '@/app/util/CommonCall';
-import { useRouter } from 'next/navigation';
+import { Delete, Get, Post } from '@/app/util/CommonCall';
 import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
-function PostDetail(props: any) {
-     const router = useRouter();
-     const [detailList, setDetailList] = useState<any>([]);
+const PostDetail = (props: any) => {
+  const router = useRouter();
 
-     const [commentsList, setCommentsList] = useState<any>([]);
-     const [comment, setComment] = useState<string>('');
-     const [commentType, setCommentType] = useState<boolean>(true);
+  const [postDetailList, setPostDetailList] = useState<any>([]);
+  const [postId, setPostId] = useState<string>('');
+  const [title, setTitle] = useState<string>('');
+  const [body, setBody] = useState<string>('');
+  const [inputType, setInputType] = useState<boolean>(true);
 
-     const [likeCount, setLikeCount] = useState<any>('');
-     const [id, setId] = useState<any>();
-     const [postId, setPostId] = useState<any>();
-     
-     useEffect(() => {
-          let mounted: any = true;
+  const [comment, setComment] = useState<string>('');
+  const [commentList, setCommentList] = useState<any>([]);
+  const [commentType, setCommentType] = useState<boolean>(true);
+  const [commentTypeIdx, setCommentTypeIdx] = useState<number>();
 
-          if (mounted) {
-               getDetail();
-               setCommentType(true);
+  const [likeType, setLikeType] = useState<boolean>(false);
+
+  useEffect(() => {
+    let mounted: any = true;
+
+    if (mounted) {
+      getPostDetail();
+    }
+    return function cleanup() {
+      mounted = false;
+    }
+  }, [inputType, commentType, likeType]);
+
+  // 상세 | 댓글 리스트
+  const getPostDetail = async () => {
+    const result: any = await Get(`/api/v2/posts/${props.searchParams.id}`, {});
+
+    if (result.status === 200) {
+      setPostDetailList(result.data.data);
+      setCommentList(result.data.data.comment);
+
+      setPostId(result.data.data.id);
+      setTitle(result.data.data.title);
+      setBody(result.data.data.body);
+    }
+  }
+
+  // 글 삭제
+  const getPostDelete = async () => {
+    const result: any = await Delete(`/api/v2/posts/delete/${props.searchParams.id}`, {});
+
+    if (result.status === 200) {
+      toast.success('글이 삭제되었습니다.');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  }
+
+  // 글 수정
+  const getPostUpdate = async () => {
+    let params: any = new FormData();
+    params.append('title', title);
+    params.append('body', body);
+    params.append('id', postId);
+
+    const result: any = await Post(`/api/v2/posts/modify`, params);
+
+    if (result.status === 200) {
+      toast.success(`수정이 완료되었습니다.`);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  }
+
+  // 댓글 등록
+  const getCommentAdd = async () => {
+    let params: any = new FormData();
+    params.append('comment', comment);
+
+    const result: any = await Post(`/api/v2/posts/create/comment/${postId}`, params);
+
+    if (result.status === 200) {
+      toast.success(`댓글이 등록되었습니다.`)
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  }
+
+  // 댓글 삭제
+  const getCommentDelete = async (id: any) => {
+    const result: any = await Delete(`/api/v2/posts/delete/comment/${id}`, {});
+
+    if (result.status === 200) {
+      toast.success(`댓글이 삭제되었습니다.`);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  }
+
+  // 댓글 수정
+  const getCommentUpdate = async (id: any) => {
+    let params: any = new FormData();
+    params.append('comment', comment);
+
+    const result = await Post(`/api/v2/posts/modify/comment/${id}`, params);
+
+    if (result.status === 200) {
+      toast.success('댓글이 수정되었습니다.')
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  }
+
+  // 좋아요
+  const getPostLike = async() => {
+    setLikeType(true);
+
+    const result: any = await Post(`/api/v2/posts/like/${postId}`, {});
+
+    if(result.status === 200) {
+      toast.success('좋아요👍')
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  }
+
+  // 좋아요 취소
+  const getPostLikeCan = async() => {
+    setLikeType(false);
+
+    const result: any = await Delete(`/api/v2/posts/like/cancel/${postId}`, {});
+
+    if(result.status === 200) {
+      toast.success('좋아요 취소👎')
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  }
+
+  return (
+    <>
+      <div>
+        <div>
+          {
+            inputType === true
+              ?
+              <>
+                <div>
+                  <div>
+                    <label>제목</label>
+                    <p>{postDetailList.title}</p>
+                  </div>
+                  <div>
+                    <label>내용</label>
+                    <p>{postDetailList.body}</p>
+                  </div>
+                  <div>
+                    <button type='button' onClick={() => { likeType === true ? getPostLike() : getPostLikeCan() }}>👍</button>
+                  </div>
+                  <div>
+                    <button type='button' onClick={() => { router.push('/') }}>뒤로가기</button>
+                  </div>
+                  <div>
+                    <button type='button' onClick={() => { setInputType(false); }}>글 수정</button>
+                  </div>
+                  <div>
+                    <button type='button' onClick={() => { getPostDelete(); }}>글 삭제</button>
+                  </div>
+                </div>
+              </>
+              :
+              <>
+                <div>
+                  <div>
+                    <label>제목</label>
+                    <input type='text' value={title} onChange={(e: any) => { setTitle(e.target.value); }} />
+                  </div>
+                  <div>
+                    <label>내용</label>
+                    <input type='text' value={body} onChange={(e: any) => { setTitle(e.target.value); }} />
+                  </div>
+                  <div>
+                    <button type='button' onClick={() => { setInputType(true); }}>취소</button>
+                  </div>
+                  <div>
+                    <button type='button' onClick={() => { getPostUpdate(); }}>저장</button>
+                  </div>
+                </div>
+              </>
           }
-          return function cleanup() {
-               mounted = false;
-          }
-     }, []);
-
-     // 상세 조회
-     const getDetail = async () => {
-          const result: any = await Get(`/api/v1/posts/detail/${props.searchParams.id}`, {});
-
-          if (result.status === 200) {
-               setDetailList(result.data.result);
-               getComment();
-               getLikeCount();
-          }
-     }
-
-     // 뒤로가기
-     const back = () => {
-          router.push('/post/list');
-     }
-
-     // 삭제
-     const getDelete = async () => {
-          const result: any = await Delete(`/api/v1/posts/${props.searchParams.id}`, {});
-
-          if (result.status === 200) {
-               alert('삭제 성공')
-               router.push('/post/list');
-          } else {
-               console.log('error!!!');
-          }
-     }
-
-     // 수정 페이지 이동
-     const getUpdate = () => {
-          router.push(`/post/update?id=${props.searchParams.id}`);
-     }
-
-     // 댓글 조회
-     const getComment = async () => {
-          const result: any = await Get(`/api/v1/posts/${props.searchParams.id}/comments`, {});
-          console.log('id :::', props.searchParams.id);
-
-          if (result.status === 200) {
-               setCommentsList(result.data.result.content);
-               setId(result.data.result.content.id);
-               setPostId(result.data.result.content.postId);
-          }
-     }
-
-     // 댓글 등록
-     const getCommentAdd = async () => {
-          let param: any = new FormData();
-          param.append('comment', comment);
-
-          const result: any = await Post(`/api/v1/posts/${props.searchParams.id}/comments`, param);
-
-          if (result.status === 200) {
-               alert('댓글이 등록되었습니다.')
-               location.reload();
-          }
-     }
-
-     // 댓글 수정
-     const getCommentUpdate = async (id: any, postId: any) => {
-          let param: any = new FormData();
-          param.append('comment', comment);
-
-          const result: any = await Put(`/api/v1/posts/${postId}/comments/${id}`, param);
-
-          if (result.status === 200) {
-               alert('댓글이 수정되었습니다.')
-               location.reload();
-          }
-     }
-
-     // 댓글 삭제
-     const getCommentDelete = async (id: any, postId: any) => {
-          const result: any = await Delete(`/api/v1/posts/${postId}/comments/${id}`, {});
-
-          if (result.status === 200) {
-               alert('댓글이 삭제되었습니다.')
-               location.reload();
-          }
-     }
-
-     // 좋아요 조회
-     const getLikeCount = async () => {
-          const result: any = await Get(`/api/v1/posts/${props.searchParams.id}/likes`, {});
-
-          if (result.status === 200) {
-               setLikeCount(result.data.result);
-          }
-     }
-
-     // 좋아요 추가
-     const getLike = async () => {
-          const result: any = await Post(`/api/v1/posts/${props.searchParams.id}/likes`, {});
-
-          if (result.status === 200) {
-               alert('좋아요를 눌렀습니다.')
-               location.reload();
-          }
-
-     }
-
-     return (
-          <>
-               <div>
-                    <div>
-                         <table>
-                              <tbody>
-                                   <tr>
-                                        <th>NO</th>
-                                        <td>{detailList.id}</td>
-                                   </tr>
-                                   <tr>
-                                        <th>제목</th>
-                                        <td>{detailList.title}</td>
-                                   </tr>
-                                   <tr>
-                                        <th>내용</th>
-                                        <td>{detailList.body}</td>
-                                   </tr>
-                                   <tr>
-                                        <th>작성자</th>
-                                        <td>{detailList.userName}</td>
-                                   </tr>
-                                   <tr>
-                                        <th>작성일시</th>
-                                        <td>{detailList.createdAt}</td>
-                                   </tr>
-                                   <tr>
-                                        <th>좋아요</th>
-                                        <td>{likeCount}  <button type='button' onClick={() => { getLike(); }}>👍</button></td>
-                                   </tr>
-                              </tbody>
-                         </table>
-                    </div>
-                    <div className='button'>
-                         <button type='button' className='' onClick={() => { back(); }} >목록</button>
-                         <button type='button' className='' onClick={() => { getUpdate(); }} >수정</button>
-                         <button type='button' className='' onClick={() => { getDelete(); }} >삭제</button>
-                    </div>
-                    <div className='comments'>
-                         <div>
-                              <table>
-                                   <tbody>
-                                        {
-                                             commentsList && commentsList.map((item: any, index: any) => (
-                                                  <tr key={index}>
-                                                       <th>{item.userName}</th>
-                                                       {
-                                                            commentType === true
-                                                                 ?
-                                                                 <>
-                                                                      <td>{item.comment}</td>
-                                                                      <td><button type='button' onClick={() => { setCommentType(false); }}>수정</button></td>
-                                                                      <td><button type='button' onClick={() => { getCommentDelete(item.id, item.postId); }}>삭제</button></td>
-                                                                 </>
-                                                                 :
-                                                                 <>
-                                                                      <input type='text' value={item.comment} onChange={(e: any) => { setComment(e.target.value); }} />
-                                                                      <button type='button' onClick={() => { getCommentUpdate(item.id, item.postId); }}>확인</button>
-                                                                 </>
-                                                       }
-                                                  </tr>
-                                             ))
-                                        }
-                                   </tbody>
-                              </table>
-                         </div>
-                         <div>
-                              <input type='text' onChange={(e: any) => { setComment(e.target.value) }} />
-                              <button type='button' onClick={() => { getCommentAdd(); }}>등록</button>
-                         </div>
-                    </div>
-               </div>
-          </>
-     )
+        </div>
+        <div>
+          <div>
+            {
+              commentList && commentList.map((i: any, idx: any) => (
+                <div key={idx}>
+                  <tr>
+                    {
+                      commentType === true
+                        ?
+                        <p>{i.comment}</p>
+                        :
+                        commentTypeIdx !== idx
+                          ?
+                          <p>{i.comment}</p>
+                          :
+                          <input type='text' value='안녕' onChange={(e: any) => { setComment(e.target.value); }} />
+                    }
+                    <p>{i.createdAt}</p>
+                    <p>{i.userName}</p>
+                  </tr>
+                  <div>
+                    {
+                      commentType === true
+                        ?
+                        <>
+                          <button type='button' onClick={() => { getCommentDelete(i.id) }}>댓글 삭제</button>
+                          <button type='button' onClick={() => { setCommentType(false); setCommentTypeIdx(idx); }}>댓글 수정</button>
+                        </>
+                        :
+                        commentTypeIdx !== idx
+                          ?
+                          <>
+                            <button type='button' onClick={() => { getCommentDelete(i.id) }}>댓글 삭제</button>
+                            <button type='button' onClick={() => { setCommentType(false); setCommentTypeIdx(idx); }}>댓글 수정</button>
+                          </>
+                          :
+                          <>
+                            <button type='button' onClick={() => { setCommentType(true); }}>취소</button>
+                            <button type='button' onClick={() => { getCommentUpdate(i.id); setCommentType(true); }}>저장</button>
+                          </>
+                    }
+                  </div>
+                </div>
+              ))
+            }
+            <div>
+              <input type='text' onChange={(e: any) => { setComment(e.target.value); }} />
+            </div>
+            <div>
+              <button type='button' onClick={() => { getCommentAdd(); }}>댓글 등록</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  )
 }
 export default PostDetail;
