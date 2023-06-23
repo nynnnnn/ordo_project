@@ -1,13 +1,9 @@
 'use client'
 
-import PostDetailModal from "../modals/PostDetailMadal";
-import PostAddMadal from "../modals/PostAddMadal";
 import hookUserLogin from "@/app/hooks/useLoginModal";
-import hookPostAdd from "@/app/hooks/postAddModal";
-import hookPostDetail from "@/app/hooks/postDetailModal";
-
 import { cUser } from "@/app/types";
 import { Delete, Get } from "@/app/util/CommonCall";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from 'react';
 
@@ -16,9 +12,8 @@ interface ListProps {
 }
 
 const List: React.FC<ListProps> = ({ currentUser }) => {
+  const router = useRouter();
   const loginModal = hookUserLogin();
-  const postAddModal = hookPostAdd();
-  const postdetailModal = hookPostDetail();
 
   const [postList, setPostList] = useState<any>([]);
   const [postDetailList, setPostDetailList] = useState<any>([]);
@@ -27,7 +22,7 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
   useEffect(() => {
     let mounted: any = true;
 
-    if(mounted) {
+    if (mounted) {
       getPostList();
       ID !== undefined && getPostDetailList();
     }
@@ -36,28 +31,25 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
     }
   }, [ID]);
 
-  const getPostList = async() => {
+  const getPostList = async () => {
     const result: any = await Get(`/api/v2/posts`, {});
 
-    if(result.status === 200) {
+    if (result.status === 200) {
       setPostList(result.data.data.content);
     }
   }
 
-  const getPostDetailList = async() => {
+  const getPostDetailList = async () => {
     const result: any = await Get(`/api/v2/posts/${ID}`, {});
 
-    if(result.status === 200) {
+    if (result.status === 200) {
       setPostDetailList(result.data.data);
     }
   }
 
   return (
     <>
-    <PostDetailModal ID={ID}/>
-    <PostAddMadal />                                    
-
-    <div>
+      <div>
         <button type="button" className="
                                  py-2.5 
                                  px-5 
@@ -71,9 +63,7 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
                                  rounded-md
                                  border-rose-500  
                                  hover:white"
-                        
-                          // 유저 정보가 있으면 등록 모달, 유저 정보가 없으면 로그인 모달
-          onClick={() => { currentUser ? postAddModal.onOpen() : loginModal.onOpen() }}>Create</button>
+          onClick={() => { currentUser ? router.push('/post/add') : loginModal.onOpen() }}>Create</button>
       </div>
       <div className='relative overflow-x-auto float-none'>
         <table className='
@@ -101,8 +91,14 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
             {postList && postList.map((i: any, idx: any) => (
               <tr className='bg-white dark:bg-gray-800' key={idx}>
                 <td scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{i.id}</td>
-                                                                      {/* 제목 클릭 시 상세 모달 띄우기 */}
-                <td className="px-6 py-4"><a href="#" onClick={() => { postdetailModal.onOpen(); setID(i.id);}}>{i.title}</a></td>
+                <td className="px-6 py-4">
+                  <Link href={{
+                    pathname: '/post/detail',
+                    query: {
+                      id: i.id
+                    }
+                  }}>{i.title}</Link>
+                </td>
                 <td className="px-6 py-4">{i.body}</td>
                 <td className="px-6 py-4">{i.userName}</td>
                 <td className="px-6 py-4">{i.createdAt}</td>

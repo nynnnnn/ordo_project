@@ -118,32 +118,32 @@ const PostDetail = (props: any) => {
   }
 
   // 좋아요
-  const getPostLike = async() => {
-    setLikeType(true);
+  // const getPostLike = async() => {
+  //   setLikeType(true);
 
-    const result: any = await Post(`/api/v2/posts/like/${postId}`, {});
+  //   const result: any = await Post(`/api/v2/posts/like/${postId}`, {});
 
-    if(result.status === 200) {
-      toast.success('좋아요👍')
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    }
-  }
+  //   if(result.status === 200) {
+  //     toast.success('좋아요👍')
+  //     setTimeout(() => {
+  //       window.location.reload();
+  //     }, 1000);
+  //   }
+  // }
 
   // 좋아요 취소
-  const getPostLikeCan = async() => {
-    setLikeType(false);
+  // const getPostLikeCan = async() => {
+  //   setLikeType(false);
 
-    const result: any = await Delete(`/api/v2/posts/like/cancel/${postId}`, {});
+  //   const result: any = await Delete(`/api/v2/posts/like/cancel/${postId}`, {});
 
-    if(result.status === 200) {
-      toast.success('좋아요 취소👎')
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    }
-  }
+  //   if(result.status === 200) {
+  //     toast.success('좋아요 취소👎')
+  //     setTimeout(() => {
+  //       window.location.reload();
+  //     }, 1000);
+  //   }
+  // }
 
   return (
     <>
@@ -163,7 +163,7 @@ const PostDetail = (props: any) => {
                     <p>{postDetailList.body}</p>
                   </div>
                   <div>
-                    <button type='button' onClick={() => { likeType === true ? getPostLike() : getPostLikeCan() }}>👍</button>
+                    {/* <button type='button' onClick={() => { likeType === true ? getPostLike() : getPostLikeCan() }}>👍</button> */}
                   </div>
                   <div>
                     <button type='button' onClick={() => { router.push('/') }}>뒤로가기</button>
@@ -212,7 +212,7 @@ const PostDetail = (props: any) => {
                           ?
                           <p>{i.comment}</p>
                           :
-                          <input type='text' value='안녕' onChange={(e: any) => { setComment(e.target.value); }} />
+                          <input type='text' onChange={(e: any) => { setComment(e.target.value); }} />
                     }
                     <p>{i.createdAt}</p>
                     <p>{i.userName}</p>

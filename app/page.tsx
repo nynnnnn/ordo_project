@@ -1,4 +1,4 @@
-import List from './components/post/List';
+import List from './post/List';
 import Container from "@/app/components/Container";
 import ClientOnly from "./components/ClientOnly";
 import getCurrentUser from './actions/getCurrentUser';

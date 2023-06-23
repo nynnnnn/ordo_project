@@ -38,7 +38,7 @@ axios.interceptors.response.use(
                toast.error('로그인 세션이 만료되었습니다. 다시 로그인 해주세요.');
                setTimeout(()=> {
                     location.replace('/');
-               }, 3000);
+               }, 1000);
           }
           return Promise.reject(error);
      }

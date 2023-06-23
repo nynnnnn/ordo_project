@@ -42,7 +42,6 @@ const PostDetailModal = (props: any) => {
       setPostId(result.data.data.id);
       setTitle(result.data.data.title);
       setBody(result.data.data.body);
-
       setCommentList(result.data.data.comment);
     }
   }
@@ -57,7 +56,7 @@ const PostDetailModal = (props: any) => {
     }
   }
 
-  const getPostUpdate = async() => {
+  const getPostUpdate = async () => {
     let params: any = new FormData();
     params.append('title', title);
     params.append('body', body);
@@ -65,7 +64,7 @@ const PostDetailModal = (props: any) => {
 
     const result: any = await Post(`/api/v2/posts/modify`, params);
 
-    if(result.status === 200) {
+    if (result.status === 200) {
       toast.success(`수정이 완료되었습니다.`);
       setInputType(true);
     }
@@ -82,10 +81,10 @@ const PostDetailModal = (props: any) => {
     }
   }
 
-  const getCommentDelete = async(commentId: any) => {
+  const getCommentDelete = async (commentId: any) => {
     const result: any = await Delete(`/api/v2/posts/delete/comment/${commentId}`, {});
 
-    if(result.status === 200) {
+    if (result.status === 200) {
       toast.success(`댓글이 삭제되었습니다.`);
     }
   }
@@ -110,7 +109,7 @@ const PostDetailModal = (props: any) => {
         내용: <input type="text" value={body} onChange={(e: any) => { setBody(e.target.value) }}></input>
       </div>
       <div>
-        <button className="" type="button" onClick={() => { getPostUpdate(); }}>확인</button>
+        <button className="" type="button" onClick={() => { getPostUpdate(); }}>저장</button>
       </div>
     </>
   )
@@ -124,8 +123,16 @@ const PostDetailModal = (props: any) => {
               <p>{i.comment}</p>
               <p>{i.lastModifiedAt}</p>
               <p>{i.userName}</p>
-              <button type='button' className="" onClick={() => { getCommentDelete(i.id); }}>댓글 삭제</button>
-              <button type='button' className="" onClick={() => {  }}>댓글 수정</button>
+
+              {commentType === true
+                ?
+                <>
+                  <button type='button' className="" onClick={() => { getCommentDelete(i.id); }}>댓글 삭제</button>
+                  <button type='button' className="" onClick={() => { setCommentType(false); }}>댓글 수정</button>
+                </>
+                :
+                <button type='button' className="" onClick={() => { }}>저장</button>
+              }
             </div>
           ))
         }
