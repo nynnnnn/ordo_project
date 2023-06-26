@@ -1,9 +1,9 @@
 'use client'
 
+import Link from "next/link";
 import hookUserLogin from "@/app/hooks/useLoginModal";
 import { cUser } from "@/app/types";
-import { Delete, Get } from "@/app/util/CommonCall";
-import Link from "next/link";
+import { Get } from "@/app/util/CommonCall";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from 'react';
 
@@ -16,34 +16,23 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
   const loginModal = hookUserLogin();
 
   const [postList, setPostList] = useState<any>([]);
-  const [postDetailList, setPostDetailList] = useState<any>([]);
-  const [ID, setID] = useState<string>('');
 
   useEffect(() => {
     let mounted: any = true;
 
     if (mounted) {
       getPostList();
-      ID !== undefined && getPostDetailList();
     }
     return function cleanup() {
       mounted = false;
     }
-  }, [ID]);
+  }, []);
 
   const getPostList = async () => {
     const result: any = await Get(`/api/v2/posts`, {});
 
     if (result.status === 200) {
       setPostList(result.data.data.content);
-    }
-  }
-
-  const getPostDetailList = async () => {
-    const result: any = await Get(`/api/v2/posts/${ID}`, {});
-
-    if (result.status === 200) {
-      setPostDetailList(result.data.data);
     }
   }
 
@@ -95,7 +84,7 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
                   <Link href={{
                     pathname: '/post/detail',
                     query: {
-                      id: i.id
+                      id: i.id,
                     }
                   }}>{i.title}</Link>
                 </td>

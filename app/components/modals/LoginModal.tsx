@@ -34,7 +34,6 @@ const LoginModal = () => {
     },
   });
 
-  // login: header에 토큰 보내지 않기 위해 axios 사용
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     const params = new FormData();
     params.append('userName', data.email);
@@ -53,14 +52,13 @@ const LoginModal = () => {
       .then(function (response) {
         console.log('response :::', response);
 
-        // 쿠키랑 로컬스토리지 저장
-        const token: string = response.data.result.jwt;
+        const token: string = response.data.data.result.jwt.accessToken;
         Cookies.set('access_token', token);
         localStorage.setItem('access_token', token);
 
-        toast.success('로그인 성공');   // 성공팝업
-        router.refresh();               // 페이지 새로고침
-        loginModal.onClose();           // 창닫기
+        toast.success('로그인 성공');   
+        router.refresh();               
+        loginModal.onClose();           
       })
       .catch((error) => {
         console.log("error ::::: ");
@@ -69,13 +67,11 @@ const LoginModal = () => {
       });
   }
 
-  // 로그인창 닫고 회원가입창 열고
   const onToggle = useCallback(() => {
     loginModal.onClose();
     registerModal.onOpen();
   }, [loginModal, registerModal])
 
-  // 로그인 폼
   const bodyContent = (
     <div className="flex flex-col gap-4">
       <Heading
@@ -102,7 +98,6 @@ const LoginModal = () => {
     </div>
   )
 
-  // 소셜 연동 로그인
   const footerContent = (
     <div className="flex flex-col gap-4 mt-3">
       <hr />
@@ -136,14 +131,14 @@ const LoginModal = () => {
 
   return (
     <Modal
-      disabled={isLoading}                // 비활성화
-      isOpen={loginModal.isOpen}          // modal open
-      title="Login"                       // 제목
-      actionLabel="Continue"              // 버튼
-      onClose={loginModal.onClose}        // modal close
-      onSubmit={handleSubmit(onSubmit)}   // api
-      body={bodyContent}                  // content
-      footer={footerContent}              // footer
+      disabled={isLoading}               
+      isOpen={loginModal.isOpen}         
+      title="Login"                     
+      actionLabel="Continue"              
+      onClose={loginModal.onClose}       
+      onSubmit={handleSubmit(onSubmit)}   
+      body={bodyContent}                 
+      footer={footerContent}             
     />
   );
 }
