@@ -33,13 +33,11 @@ export default async function RootLayout({
             <LoginModal />{/* 로그인 팝업 */}
             <RegisterModal />{/* 회원가입 팝업 */}
             <Navbar currentUser={currentUser} />{/* 상단 메뉴 */}
-
             <Container>
               <div className="pb-20 pt-28">
                 {children}
               </div>
             </Container>
-            
           </ClientOnly>
         </Providers>
       </body>
