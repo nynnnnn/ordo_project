@@ -8,7 +8,9 @@ const Comment = (props: any) => {
    const [commentType, setCommentType] = useState<boolean>(true);
    const [isLoding, setIsLoding] = useState<boolean>(true);
    const [comment, setComment] = useState<string>(props.list.comment);
-   const [postId, setPostId] = useState<string>(props.list.postId);
+   const [user, setUser] = useState<string>(props.list.userName)
+   const [tokenUserName, setTokenUserName] = useState<string>(props.tokenUserName);
+   const [commentUserName, setCommentUserName] = useState<string>(props.commentUserName);
 
    const getCommentUpdate = async (commentId: any) => {
       let params: any = new FormData();
@@ -44,37 +46,55 @@ const Comment = (props: any) => {
                     text-left 
                     text-gray-500 
                     dark:text-gray-400
+                    mr-3"
+                     >{user}</span>
+
+                     <span className="
+                    border w-full 
+                    text-sm 
+                    text-left 
+                    text-gray-500 
+                    dark:text-gray-400
                     mr-10"
                      >{comment}</span>
 
-                     <button type="button" className="
-                    py-2 
-                    px-3 
-                    mr-2 
-                    mb-2 s
-                    text-xs
-                    text-gray-500
-                    focus:outline-none 
-                    border
-                    border-gray-500 
-                    rounded-md
-                    border-gray-500  
-                    hover:white"
-                        onClick={() => { setCommentType(false); }}>댓글 수정</button>
-                     <button type="button" className="
-                    py-2 
-                    px-3 
-                    mr-2 
-                    mb-2 s
-                    text-xs
-                    text-gray-500
-                    focus:outline-none 
-                    border
-                    border-gray-500 
-                    rounded-md
-                    border-gray-500  
-                    hover:white"
-                        onClick={() => { getCommentDelete(props.list.id); }}>댓글 삭제</button>
+                     {
+                        tokenUserName === commentUserName
+                           ?
+                           <>
+                              <button type="button" className="
+                                                      py-2 
+                                                      px-3 
+                                                      mr-2 
+                                                      mb-2 s
+                                                      text-xs
+                                                      text-gray-500
+                                                      focus:outline-none 
+                                                      border
+                                                      border-gray-500 
+                                                      rounded-md
+                                                      border-gray-500  
+                                                      hover:white"
+                                 onClick={() => { setCommentType(false); }}>댓글 수정</button>
+                              <button type="button" className="
+                                                      py-2 
+                                                      px-3 
+                                                      mr-2 
+                                                      mb-2 s
+                                                      text-xs
+                                                      text-gray-500
+                                                      focus:outline-none 
+                                                      border
+                                                      border-gray-500 
+                                                      rounded-md
+                                                      border-gray-500  
+                                                      hover:white"
+                                 onClick={() => { getCommentDelete(props.list.id); }}>댓글 삭제</button>
+                           </>
+                           :
+                           null
+                     }
+
                   </>
                   :
                   <>

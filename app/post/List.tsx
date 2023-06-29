@@ -6,6 +6,7 @@ import { cUser } from "@/app/types";
 import { Get } from "@/app/util/CommonCall";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from 'react';
+import Pagination from "./Pagination";
 
 interface ListProps {
   currentUser?: cUser | null;
@@ -16,6 +17,10 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
   const loginModal = hookUserLogin();
 
   const [postList, setPostList] = useState<any>([]);
+
+  const [page, setPage] = useState(1);         // 페이지
+  const limit = 10;                            // post가 보일 최대한의 갯수
+  const offset = (page - 1)*limit;             // 시작점과 끝점을 구하는 offset
 
   useEffect(() => {
     let mounted: any = true;
@@ -28,10 +33,23 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
     }
   }, []);
 
-  const getPostList = async () => {
+  // const getPostList = async () => {
+  //   const result: any = await Get(`/api/v2/posts`, {});
+  //   let data: any;
+
+  //   if (result.status === 200) {
+  //     if(result.data.data.content) {
+  //       data = result.data.data.content.slice(offset, offset + limit);
+  //       return data;
+  //     }
+  //     setPostList(data);
+  //   }
+  // }
+
+  const getPostList = async() => {
     const result: any = await Get(`/api/v2/posts`, {});
 
-    if (result.status === 200) {
+    if(result.status === 200) {
       setPostList(result.data.data.content);
     }
   }
@@ -85,6 +103,8 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
                     pathname: '/post/detail',
                     query: {
                       id: i.id,
+                      tokenUserName: currentUser?.username,
+                      postUserName: i.userName
                     }
                   }}>{i.title}</Link>
                 </td>
@@ -96,6 +116,9 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
             }
           </tbody>
         </table>
+      </div>
+      <div className="mt-10">
+        <Pagination />
       </div>
     </>
   )

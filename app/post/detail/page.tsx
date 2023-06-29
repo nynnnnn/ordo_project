@@ -1,10 +1,10 @@
 'use client'
 
 import Comment from "./comment";
+import { toast } from "react-hot-toast";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Delete, Get, Post } from "@/app/util/CommonCall";
-import { toast } from "react-hot-toast";
 
 const PostDetail = (props: any) => {
   const router: any = useRouter();
@@ -16,13 +16,15 @@ const PostDetail = (props: any) => {
   const [comment, setComment] = useState<string>('');
   const [isLoding, setIsLoding] = useState<boolean>(true);
   const [likeStatus, setLikeStatus] = useState<any>();
+  const [tokenUserName, setTokenUserName] = useState<string>(props.searchParams.tokenUserName);
+  const [postUserName, setPostUserName] = useState<string>(props.searchParams.postUserName);
 
   useEffect(() => {
     let mounted: any = true;
 
     if (mounted) {
       getDetail();
-      getLikeStatus();
+      tokenUserName !== "" && getLikeStatus();
     }
     return function cleanup() {
       mounted = false;
@@ -71,14 +73,15 @@ const PostDetail = (props: any) => {
 
     if (result.status === 200) {
       toast.success(`댓글이 등록되었습니다.`);
+      setComment('');
       setIsLoding(!isLoding);
     }
   }
 
-  const getLikeStatus = async() => {
+  const getLikeStatus = async () => {
     const result: any = await Get(`/api/v2/posts/like/status/${props.searchParams.id}`, {});
 
-    if(result.status === 200) {
+    if (result.status === 200) {
       setLikeStatus(result.data.data);
     }
   }
@@ -139,20 +142,28 @@ const PostDetail = (props: any) => {
               </div>
 
               {
-                likeStatus === 0
+                tokenUserName === ""
                   ?
-                  <div className='pb-4'>
-                    <button type='button' className='mr-2' onClick={() => { getLike(); }}>👍좋아요</button><span>{detailList.likeCount}</span>
-                  </div>
+                  null
                   :
-                  <div className='pb-4'>
-                    <span></span>
-                    <span>👍{detailList.likeCount}&nbsp; &nbsp; &nbsp;</span><button type='button' onClick={() => { getUnLike(); }}>❌ 좋아요 취소</button>
-                  </div>
+                  likeStatus === 0
+                    ?
+                    <div className='pb-4'>
+                      <button type='button' className='mr-2' onClick={() => { getLike() }}>👍좋아요</button><span>{detailList.likeCount}</span>
+                    </div>
+                    :
+                    <div className='pb-4'>
+                      <span></span>
+                      <span>👍{detailList.likeCount}&nbsp; &nbsp; &nbsp;</span><button type='button' onClick={() => { getUnLike(); }}>❌ 좋아요 취소</button>
+                    </div>
               }
 
-              <div className='content-center pb-4'>
-                <button type="button" className="
+              {
+                tokenUserName === postUserName
+                  ?
+                  <>
+                    <div className='content-center pb-4'>
+                      <button type="button" className="
                                   py-2.5 
                                   px-5 
                                   mr-2 
@@ -165,8 +176,8 @@ const PostDetail = (props: any) => {
                                   rounded-md
                                   border-rose-500  
                                   hover:white"
-                  onClick={() => { router.push('/'); }}>목록</button>
-                <button type="button" className="
+                        onClick={() => { router.push('/'); }}>목록</button>
+                      <button type="button" className="
                                   py-2.5 
                                   px-5 
                                   mr-2 
@@ -179,8 +190,8 @@ const PostDetail = (props: any) => {
                                   rounded-md
                                   border-rose-500  
                                   hover:white"
-                  onClick={() => { setInputType(false); }}>수정</button>
-                <button type="button" className="
+                        onClick={() => { setInputType(false); }}>수정</button>
+                      <button type="button" className="
                           py-2.5 
                           px-5 
                           mr-2 
@@ -193,8 +204,30 @@ const PostDetail = (props: any) => {
                           rounded-md
                           border-rose-500  
                           hover:white"
-                  onClick={() => { getDelete(); }}>삭제</button>
-              </div>
+                        onClick={() => { getDelete(); }}>삭제</button>
+                    </div>
+                  </>
+                  :
+                  <>
+                    <div className='content-center pb-4'>
+                      <button type="button" className="
+                                  py-2.5 
+                                  px-5 
+                                  mr-2 
+                                  mb-2 s
+                                  text-sm 
+                                  font-medium 
+                                  text-white 
+                                  focus:outline-none 
+                                  bg-blue-500 
+                                  rounded-md
+                                  border-rose-500  
+                                  hover:white"
+                        onClick={() => { router.push('/'); }}>목록</button>
+
+                    </div>
+                  </>
+              }
 
               <div className='pb-4'>
                 <input type='text'
@@ -204,7 +237,7 @@ const PostDetail = (props: any) => {
               disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none
               invalid:border-pink-500 invalid:text-pink-600
               focus:invalid:border-pink-500 focus:invalid:ring-pink-500'
-                  size={50} onChange={(e: any) => { setComment(e.target.value); }} />
+                  size={50} onChange={(e: any) => { setComment(e.target.value); }} value={comment}/>
                 <button type="button" className="
                             py-2 
                             px-3 
@@ -223,7 +256,7 @@ const PostDetail = (props: any) => {
               {
                 commentList && commentList.map((i: any, idx: any) => (
                   <div key={idx}>
-                    <Comment list={i} />
+                    <Comment list={i} commentUserName={i.userName} tokenUserName={tokenUserName} />
                   </div>
                 ))
               }
