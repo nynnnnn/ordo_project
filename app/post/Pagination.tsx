@@ -1,39 +1,85 @@
 'use client'
 
-import './Pagination.css'
-import React, { useState } from 'react';
-import Pagination from 'react-js-pagination';
-import { Get } from '../util/CommonCall';
+import { toast } from 'react-hot-toast';
+import { useState } from 'react';
 
-const Paging = () => {
-   const [page, setPage] = useState<number>(1);
+function CommonPaging(props: any) {
+   const [limit, setLimit] = useState(props.limit);
+   const [page, setPage] = useState(props.page + 1);
 
-   const handlePageChange = async(page: number) => {
-      // let param: any = new FormData();
-      // param.append('page', 3);
-      // param.append('size', 5);
-
-      const result: any = await Get(`/api/v2/posts/test/posts?page=3&size=5`, {});
-
-      if(result.status === 200) {
-         debugger
-      }
-      setPage(page);
-      console.log(page);
-   };
+   const numPages = Math.ceil(props.totalPosts / limit);
+   const arrayNumPages = Array(numPages).fill(0);
+   const groupSize = 5;
+   const currGroup = Math.ceil(page / groupSize);
+   const startPage = (currGroup - 1) * groupSize + 1;
+   const endPage = Math.min(startPage + groupSize - 1, numPages);
 
    return (
       <>
-      <Pagination 
-         activePage={page}                // 현재 페이지
-         itemsCountPerPage={10}           // 한 페이지당 보여줄 리스트 아이템의 개수
-         totalItemsCount={450}            // 총 아이템의 개수
-         pageRangeDisplayed={5}           // Paginator 내에서 보여줄 페이지의 범위
-         prevPageText={'<'}               // 이전을 나타냄
-         nextPageText={'>'}               // 다음을 나타냄
-         onChange={handlePageChange}      // 페이지가 바뀔 때 핸들링해줄 변수
-         />
+         <div className=''>
+            <a
+               className="btn_com first"
+               onClick={(e) => {
+                  if (page === 1) {
+                     e.preventDefault();
+                     toast.success("첫번째 페이지입니다.");
+                  } else {
+                     setPage(1);
+                  }
+               }}
+            />
+            <a
+               className="btn_com prev"
+               onClick={(e) => {
+                  if (page === 1) {
+                     e.preventDefault();
+                     toast.success("첫번째 페이지입니다.");
+                  } else {
+                     setPage(page - 1);
+                  }
+               }}
+            />
+            {arrayNumPages.slice(startPage - 1, endPage).map((data, index) => {
+               const pageNum = startPage + index;
+               return (
+                  <a
+                     className={page === pageNum ? "active" : ""}
+                     key={pageNum}
+                     onClick={() => { setPage(pageNum); debugger; }}
+                     style={{
+                        fontWeight: page === pageNum ? 'bold' : '',
+                        fontSize: page === pageNum ? '17px' : ''
+                     }}
+                  >
+                     {pageNum}
+                  </a>
+               );
+            })}
+            <a
+               className="btn_com next"
+               onClick={(e) => {
+                  if (page === numPages) {
+                     e.preventDefault();
+                     toast.success("마지막 페이지입니다.");
+                  } else {
+                     setPage(page + 1);
+                  }
+               }}
+            />
+            <a
+               className="btn_com last"
+               onClick={(e) => {
+                  if (page === numPages) {
+                     toast.success("마지막 페이지입니다.");
+                     e.preventDefault();
+                  } else {
+                     setPage(numPages);
+                  }
+               }}
+            />
+         </div>
       </>
-   )
+   );
 }
-export default Paging;
+
+export default CommonPaging;

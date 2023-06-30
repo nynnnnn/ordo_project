@@ -1,12 +1,12 @@
 'use client'
 
 import Link from "next/link";
+import CommonPaging from "./Pagination";
 import hookUserLogin from "@/app/hooks/useLoginModal";
 import { cUser } from "@/app/types";
 import { Get } from "@/app/util/CommonCall";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from 'react';
-import Pagination from "./Pagination";
 
 interface ListProps {
   currentUser?: cUser | null;
@@ -15,12 +15,11 @@ interface ListProps {
 const List: React.FC<ListProps> = ({ currentUser }) => {
   const router = useRouter();
   const loginModal = hookUserLogin();
-
   const [postList, setPostList] = useState<any>([]);
 
-  const [page, setPage] = useState(1);         // 페이지
-  const limit = 10;                            // post가 보일 최대한의 갯수
-  const offset = (page - 1)*limit;             // 시작점과 끝점을 구하는 offset
+  const [page, setPage] = useState(0);                // 페이지
+  const limit = 10;                                   // post가 보일 최대한의 갯수
+  const [totalPosts, setTotalPosts] = useState(0);
 
   useEffect(() => {
     let mounted: any = true;
@@ -31,28 +30,35 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
     return function cleanup() {
       mounted = false;
     }
-  }, []);
+  }, [page]);
 
-  // const getPostList = async () => {
-  //   const result: any = await Get(`/api/v2/posts`, {});
-  //   let data: any;
+  useEffect(() => {
+    let mounted: any = true;
 
-  //   if (result.status === 200) {
-  //     if(result.data.data.content) {
-  //       data = result.data.data.content.slice(offset, offset + limit);
-  //       return data;
-  //     }
-  //     setPostList(data);
-  //   }
-  // }
+    if (mounted) {
+      getCount();
+    }
+    return function cleanup() {
+      mounted = false;
+    }
+  })
 
-  const getPostList = async() => {
-    const result: any = await Get(`/api/v2/posts`, {});
+  const getPostList = async () => {
+    const result: any = await Get(`/api/v2/posts?page=${page}&size=${limit}`, {});
 
-    if(result.status === 200) {
+    if (result.status === 200) {
       setPostList(result.data.data.content);
     }
   }
+
+  const getCount = async () => {
+    const result: any = await Get(`/api/v2/posts/posts/count`, {});
+
+    if (result.status === 200) {
+      setTotalPosts(result.data.data);
+    }
+  }
+
 
   return (
     <>
@@ -95,7 +101,7 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
             </tr>
           </thead>
           <tbody className='text-xs'>
-            {postList && postList.map((i: any, idx: any) => (
+            {postList.map((i: any, idx: any) => (
               <tr className='bg-white dark:bg-gray-800' key={idx}>
                 <td scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{i.id}</td>
                 <td className="px-6 py-4">
@@ -118,7 +124,12 @@ const List: React.FC<ListProps> = ({ currentUser }) => {
         </table>
       </div>
       <div className="mt-10">
-        <Pagination />
+        <CommonPaging
+          totalPosts={totalPosts}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+        />
       </div>
     </>
   )
